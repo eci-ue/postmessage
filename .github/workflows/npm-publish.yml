@@ -21,10 +21,14 @@ jobs:
         run: yarn
       
       - name: Build
-        run: npm run build
-      - run: npm run types
+        run: npm run build & npm run types
       
-      - name: publish
+      - name: Login
+        run: npm login --registry https://registry.npmjs.org/
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: Publish
         run: npm publish --access public --registry https://registry.npmjs.org/
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
