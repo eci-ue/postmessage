@@ -16,9 +16,19 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: yarn
-      - run: npm run build
-      - run: npm run types
-      - run: npm publish --access public --registry https://registry.npmjs.org/
+
+      - name: Authenticate with npm
+        run: npm login --registry=https://registry.npmjs.org
         env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+
+      - name: Install
+        run: yarn
+      
+      - name: Build
+        run: npm run build
+      - run: npm run types
+      
+      - name: publish
+        run: npm publish --access public --registry https://registry.npmjs.org/
