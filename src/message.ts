@@ -104,7 +104,7 @@ export default class PostMessage {
     });
     this.dom.dispatchEvent(e);
   }
-  push (event: string | Symbol, value = "", origin?: MessageEventSource | Client): boolean {
+  push (event: string | Symbol, value = "", origin: MessageEventSource | Client): boolean {
     if (event === Ready) {
       // 默认向父级发送消息
       value = "";
@@ -136,7 +136,8 @@ export default class PostMessage {
         this.push(event, value, item);
       }
     } else if (origin) {
-      this.send(event, value, [origin]);
+      // @ts-ignore
+      this.push(event, value, origin);
     }else {
       // 默认向所有对象发送消息
       for (const client of this.clients) {
