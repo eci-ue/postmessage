@@ -1,0 +1,46 @@
+{
+  "name": "@js-lion/message",
+  "private": false,
+  "version": "0.1.1",
+  "type": "module",
+  "types": "types/message.d.ts",
+  "license": "MIT",
+  "main": "./dist/message.js",
+  "module": "./dist/message.js",
+  "exports": {
+    "import": "./dist/message.js",
+    "require": "./dist/message.umd.cjs"
+  },
+  "scripts": {
+    "test": "vite",
+    "build": "vite build",
+    "postbuild": "npm run types",
+    "types": "tsc --declaration --noEmit false --emitDeclarationOnly --resolveJsonModule true --esModuleInterop --declarationDir ./types ./src/message"
+  },
+  "keywords": [],
+  "author": {
+    "name": "svon",
+    "email": "svon.me@gmail.com",
+    "url": "https://github.com/svonme"
+  },
+  "homepage": "https://github.com/eci-ue/i18n#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eci-ue/i18n.git"
+  },
+  "files": [
+    "dist/",
+    "types/",
+    "src/",
+    "LICENSE",
+    "README.md",
+    "package.json"
+  ],
+  "devDependencies": {
+    "@types/node": "^18.15.3",
+    "ts-node": "^10.9.1",
+    "tslib": "^2.5.0",
+    "typescript": "^4.9.5",
+    "vite": "^4.1.4"
+  }
+}
