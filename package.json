@@ -1,15 +1,15 @@
 {
-  "name": "@js-lion/message",
+  "name": "@ue/postmessage",
   "private": false,
   "version": "0.1.1",
   "type": "module",
   "types": "types/message.d.ts",
   "license": "MIT",
-  "main": "./dist/message.js",
-  "module": "./dist/message.js",
+  "main": "./dist/postmessage.js",
+  "module": "./dist/postmessage.js",
   "exports": {
-    "import": "./dist/message.js",
-    "require": "./dist/message.umd.cjs"
+    "import": "./dist/postmessage.js",
+    "require": "./dist/postmessage.umd.cjs"
   },
   "scripts": {
     "test": "vite",

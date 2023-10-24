@@ -25,9 +25,9 @@ export default defineConfig(async function() {
       polyfillModulePreload: false,
       lib: {
         entry: "src/message",
-        name: "Message",
+        name: "postmessage",
         formats: ["es", "umd"],
-        fileName: "message"
+        fileName: "postmessage"
       },
       cssCodeSplit: true,
       sourcemap: true,

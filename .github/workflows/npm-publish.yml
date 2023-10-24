@@ -15,18 +15,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-          registry-url: https://registry.npmjs.org/
-
-      - name: Install
-        run: yarn
-      
-      - name: Build
-        run: npm run build & npm run types
-      
-      - name: Login
-        run: echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > ~/.npmrc
+          registry-url: ${{secrets.REGISTRY}}
+      - run: yarn
+      - run: npm run build
+      - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
-
-      - name: Publish
-        run: npm publish --access public --registry https://registry.npmjs.org/

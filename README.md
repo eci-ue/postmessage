@@ -1,4 +1,4 @@
-# @js-lion/message
+# @ue/postmessage
 
 基于 PostMessage 功能进行扩展
 
@@ -6,30 +6,30 @@
 ## 安装
 
 ```
-npm install @js-lion/message
+npm install @ue/message
 ```
 
 
 ```
-import Message, { type Result } from "@js-lion/message";
+import PostMessage, { type Result } from "@ue/messpostmessageage";
 
-const message = new Message();
+const postMessage = new PostMessage();
 
 // 准备完毕
-message.ready();
+postMessage.ready();
 
 // 监听 hello 事件
-message.on("hello", function(res: Result) {
+postMessage.on("hello", function(res: Result) {
   console.log(res.value); // world
 });
 ```
 
 
 ```
-import Message, { type Result } from "@js-lion/message";
+import PostMessage, { type Result } from "@ue/postmessage";
 
-const message = new Message();
-message.ready();
+const postMessage = new PostMessage();
+postMessage.ready();
 
-message.send("hello", "world");
+postMessage.send("hello", "world");
 ```
