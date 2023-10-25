@@ -38,27 +38,38 @@ const cors = function(source: Source, origin: string) {
 }
 
 
-const Ready = Symbol("ready");
+const Ready = "__ready__";
 
 interface Client {
-  target?: MessageEventSource | null;
-  origin: string;
-  href: string;
+  target?: MessageEventSource;
+  origin?: string;
+  href?: string;
 }
 
 export interface Result extends Client {
+  event: string | Symbol;
   value: string | object | undefined;
 }
 
 export default class PostMessage {
   private clients: Client[] = [];
+  private targetOrigin: string;
   private dom: HTMLInputElement = document.createElement("input");
   /**
    * 限制消息来源，默认为 *
    * @param source 
+   * @param targetOrigin
    */
-  constructor(source?: Source) {
+  constructor(source?: Source, targetOrigin: string = "*") {
+    this.clients.push({
+      target: window.parent,
+      href: window.location.href,
+      origin: window.location.origin,
+    });
+    this.targetOrigin = targetOrigin;
+
     this.init(source || "*");
+    
     this.on(Ready, (data: Result) => {
       if (data && data.href && data.href !== window.location.href) {
         const client: Client = {
@@ -78,11 +89,12 @@ export default class PostMessage {
       if (status) {
         const event: string | Symbol = data.event || "*";
         const value = data.value;
-        const temp: Result = { 
-          value: value, 
-          origin: origin,
+        const temp: Result = {
+          event,
+          value, 
+          origin,
           href: data.href,
-          target: e.source, 
+          target: e.source || void 0, 
         };
         this.receive(event, temp);
       }
@@ -105,32 +117,25 @@ export default class PostMessage {
     this.dom.dispatchEvent(e);
   }
   push (event: string | Symbol, value = "", origin: MessageEventSource | Client): boolean {
-    if (event === Ready) {
-      // 默认向父级发送消息
-      value = "";
-      origin = window.parent;
-    }
-
-    const data = { 
-      event: event, 
-      value: value,
-      href: window.location.href,
-    };
+    // @ts-ignore
+    if (origin && origin.postMessage) {
+      const data = { 
+        event: event, 
+        value: value,
+        href: window.location.href,
+      };
+      // @ts-ignore
+      origin.postMessage(data, this.targetOrigin);
+      return true;
+    } 
     // @ts-ignore
     if (origin && origin.target) {
       // @ts-ignore
-      return this.send(event, value, origin.target);
+      return this.push(event, value, origin.target);
     }
-    // @ts-ignore
-    if (origin && origin.postMessage) {
-      // @ts-ignore
-      origin.postMessage(data, "*");
-      return true;
-    } else {
-      return false;
-    }
+    return false;
   }
-  send (event: string | Symbol, value?: string, origin?: MessageEventSource | Client | Array<MessageEventSource | Client>) {
+  send (event: string | Symbol, value?: any, origin?: MessageEventSource | Client | Array<MessageEventSource | Client>) {
     if (origin && Array.isArray(origin)) {
       for (const item of origin) {
         this.push(event, value, item);
@@ -148,6 +153,6 @@ export default class PostMessage {
     }
   }
   ready() {
-    this.send(Ready);
+    this.send(Ready, void 0, window.parent);
   }
 }
