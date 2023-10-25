@@ -1,7 +1,7 @@
 {
   "name": "@ue/postmessage",
   "private": false,
-  "version": "0.1.2",
+  "version": "0.1.3",
   "type": "module",
   "types": "types/message.d.ts",
   "license": "MIT",
@@ -23,10 +23,10 @@
     "email": "svon.me@gmail.com",
     "url": "https://github.com/svonme"
   },
-  "homepage": "https://github.com/eci-ue/i18n#readme",
+  "homepage": "https://github.com/eci-ue/postmessage#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/eci-ue/i18n.git"
+    "url": "git+https://github.com/eci-ue/postmessage.git"
   },
   "files": [
     "dist/",
