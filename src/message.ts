@@ -55,6 +55,7 @@ export default class PostMessage {
   private clients: Client[] = [];
   private targetOrigin: string;
   private dom: HTMLInputElement = document.createElement("input");
+  private isReady: boolean = false;
   /**
    * 限制消息来源，默认为 *
    * @param source 
@@ -153,6 +154,10 @@ export default class PostMessage {
     }
   }
   ready() {
+    if (this.isReady) {
+      return;
+    }
+    this.isReady = true;
     this.send(Ready, void 0, window.parent);
   }
 }
