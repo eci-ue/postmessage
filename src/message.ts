@@ -38,6 +38,9 @@ const cors = function (source: Source, origin: string) {
 }
 
 
+const eventCache: Map<string, Array<(e: Event) => void>> = new Map<string, Array<(e: Event) => void>>();
+
+
 const Ready = "__ready__";
 
 interface Client {
@@ -56,7 +59,6 @@ export default class PostMessage {
   private targetOrigin: string;
   private dom: HTMLInputElement = document.createElement("input");
   private isReady: boolean = false;
-  private cache: Map<string, Array<(e: Event) => void>> = new Map<string, Array<(e: Event) => void>>();
   /**
    * 限制消息来源，默认为 *
    * @param source 
@@ -111,16 +113,25 @@ export default class PostMessage {
       callback(data);
     };
     const name = event.toString();
-    const list = this.cache.get(name) || [];
+    const list: Array<(e: Event) => void> = [];
+    if (eventCache.has(name)) {
+      const value = eventCache.get(name) || [];
+      list.push(...value);
+    }
     list.push(app);
+    eventCache.set(name, list);
+
     this.dom.addEventListener(name, app);
   }
   // 事件删除
   off(event: string | Symbol) {
     const name = event.toString();
-    const list = this.cache.get(name) || [];
-    for (const app of list) {
-      this.dom.removeEventListener(name, app);
+    if (eventCache.has(name)) {
+      const list = eventCache.get(name) || [];
+      for (const app of list) {
+        this.dom.removeEventListener(name, app);
+      }
+      eventCache.delete(name);
     }
   }
   private receive(event: string | Symbol = "*", value?: Result) {
