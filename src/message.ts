@@ -11,7 +11,7 @@ type Source = string | string[] | Function | RegExp | Array<string | RegExp | Fu
  * @param origin 
  * @returns 
  */
-const cors = function(source: Source, origin: string) {
+const cors = function (source: Source, origin: string) {
   let status = false;
   if (source && source === "*") {
     status = true;
@@ -56,6 +56,7 @@ export default class PostMessage {
   private targetOrigin: string;
   private dom: HTMLInputElement = document.createElement("input");
   private isReady: boolean = false;
+  private cache: Map<string, Array<(e: Event) => void>> = new Map<string, Array<(e: Event) => void>>();
   /**
    * 限制消息来源，默认为 *
    * @param source 
@@ -70,7 +71,7 @@ export default class PostMessage {
     this.targetOrigin = targetOrigin;
 
     this.init(source || "*");
-    
+
     this.on(Ready, (data: Result) => {
       if (data && data.href && data.href !== window.location.href) {
         const client: Client = {
@@ -82,7 +83,7 @@ export default class PostMessage {
       }
     });
   }
-  private init (source: Source) {
+  private init(source: Source) {
     const message = (e: MessageEvent) => {
       const origin = e.origin; // 对发送消息的窗口对象的引用
       const data = typeof e.data === "string" ? { value: e.data, href: origin } : e.data;    // 传递的数据
@@ -92,22 +93,35 @@ export default class PostMessage {
         const value = data.value;
         const temp: Result = {
           event,
-          value, 
+          value,
           origin,
           href: data.href,
-          target: e.source || void 0, 
+          target: e.source || void 0,
         };
         this.receive(event, temp);
       }
     }
     window.addEventListener("message", message);
   }
+  // 添加事件
   on(event: string | Symbol, callback: (value: Result) => void) {
-    this.dom.addEventListener(event.toString(), function(e: Event) {
+    const app = function (e: Event) {
       // @ts-ignore
       const data: Result = e.detail;
       callback(data);
-    });
+    };
+    const name = event.toString();
+    const list = this.cache.get(name) || [];
+    list.push(app);
+    this.dom.addEventListener(name, app);
+  }
+  // 事件删除
+  off(event: string | Symbol) {
+    const name = event.toString();
+    const list = this.cache.get(name) || [];
+    for (const app of list) {
+      this.dom.removeEventListener(name, app);
+    }
   }
   private receive(event: string | Symbol = "*", value?: Result) {
     const e = new CustomEvent(event.toString(), {
@@ -117,18 +131,19 @@ export default class PostMessage {
     });
     this.dom.dispatchEvent(e);
   }
-  push (event: string | Symbol, value = "", origin: MessageEventSource | Client): boolean {
+  // 推送
+  push(event: string | Symbol, value = "", origin: MessageEventSource | Client): boolean {
     // @ts-ignore
     if (origin && origin.postMessage) {
-      const data = { 
-        event: event, 
+      const data = {
+        event: event,
         value: value,
         href: window.location.href,
       };
       // @ts-ignore
       origin.postMessage(data, this.targetOrigin);
       return true;
-    } 
+    }
     // @ts-ignore
     if (origin && origin.target) {
       // @ts-ignore
@@ -136,7 +151,8 @@ export default class PostMessage {
     }
     return false;
   }
-  send (event: string | Symbol, value?: any, origin?: MessageEventSource | Client | Array<MessageEventSource | Client>) {
+  // 推送
+  send(event: string | Symbol, value?: any, origin?: MessageEventSource | Client | Array<MessageEventSource | Client>) {
     if (origin && Array.isArray(origin)) {
       for (const item of origin) {
         this.push(event, value, item);
@@ -144,7 +160,7 @@ export default class PostMessage {
     } else if (origin) {
       // @ts-ignore
       this.push(event, value, origin);
-    }else {
+    } else {
       // 默认向所有对象发送消息
       for (const client of this.clients) {
         if (client.target) {
