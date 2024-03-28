@@ -37,7 +37,7 @@ const cors = function (source: Source, origin: string) {
   return status;
 }
 
-
+const dom: HTMLInputElement = document.createElement("input");
 const eventCache: Map<string, Array<(e: Event) => void>> = new Map<string, Array<(e: Event) => void>>();
 
 
@@ -57,7 +57,6 @@ export interface Result extends Client {
 export default class PostMessage {
   private clients: Client[] = [];
   private targetOrigin: string;
-  private dom: HTMLInputElement = document.createElement("input");
   private isReady: boolean = false;
   /**
    * 限制消息来源，默认为 *
@@ -120,8 +119,7 @@ export default class PostMessage {
     }
     list.push(app);
     eventCache.set(name, list);
-
-    this.dom.addEventListener(name, app);
+    dom.addEventListener(name, app);
   }
   // 事件删除
   off(event: string | Symbol) {
@@ -129,7 +127,7 @@ export default class PostMessage {
     if (eventCache.has(name)) {
       const list = eventCache.get(name) || [];
       for (const app of list) {
-        this.dom.removeEventListener(name, app);
+        dom.removeEventListener(name, app);
       }
       eventCache.delete(name);
     }
@@ -140,7 +138,7 @@ export default class PostMessage {
       cancelable: true,
       detail: value || {},
     });
-    this.dom.dispatchEvent(e);
+    dom.dispatchEvent(e);
   }
   // 推送
   push(event: string | Symbol, value = "", origin: MessageEventSource | Client): boolean {
